@@ -169,7 +169,7 @@ Use these skills to build features efficiently:
    yboard deploy --platform mobile   # Deploy mobile only
    ```
 4. Share the deployed URL with the user
-5. **Mobile projects:** After deploying, run `yboard dev` to start the Expo dev server. Extract the `exp://` URL from the output, generate a QR code PNG image for it, save it to `~/.yboard/mobile-qr/qr-code.png`, and display the image to the user so they can scan it with Expo Go.
+5. **Mobile projects:** After deploying, run `yboard dev` to start the Expo dev server with a public tunnel URL. Display the QR code output to the user so they can scan it with Expo Go.
 
 ---
 
