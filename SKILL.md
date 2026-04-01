@@ -46,8 +46,8 @@ Initial request: $ARGUMENTS
    - Parse the JSON. Show the user **only** this message:
 
      > "To get started, please authenticate:
-     > 1. Go to [verification_uri]
-     > 2. Enter code: **[user_code]**
+     > 1. Go to [verification_uri_complete]
+     > 2. Confirm the code shown matches: **[user_code]**
      > 3. When you're done, just type **done**."
 
    - Wait for the user to say "done"
