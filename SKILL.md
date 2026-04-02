@@ -136,8 +136,22 @@ Use these skills to build features efficiently:
 - **rls-setup** — Row-level security policies (only when requested)
 - **manage-secrets** — Environment variables and secrets
 - **schema0-cli** — Deploy, version, and secrets commands
+- **integrations** — Discover and execute third-party integrations (Gmail, Slack, etc.)
 
 > Skills marked **(web only)** require `apps/web/` to exist. Do not use them in mobile-only projects.
+
+### Using Integrations
+
+When the user wants to interact with external services through connected platforms:
+
+```bash
+bun schema0 integrations connections                           # List connected platforms
+bun schema0 integrations search <platform> "what you want"     # Search actions (natural language)
+bun schema0 integrations details <systemId>                    # Get parameters and docs
+bun schema0 integrations execute <connKey> <path> [options]    # Execute an action
+```
+
+Always: list connections → search actions → get details → execute. The search query is natural language.
 
 **Platform-specific guidance:**
 
