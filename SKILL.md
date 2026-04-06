@@ -125,13 +125,13 @@ You can also add a platform later with `bun schema0 add web` or `bun schema0 add
 
 Use these skills to build features efficiently:
 
-- **schema-gen** — Database table schemas (Drizzle ORM)
+- **create-db-schema** — Database table schemas (Drizzle ORM)
 - **api-router** — ORPC API routers with CRUD operations
 - **create-crud-app-template** — Full CRUD feature (web only, orchestrates sub-skills)
 - **query-collections** — TanStack DB collections + forms (web only)
 - **handle-views** — Route components (web only)
-- **table-customization** — DataTable columns (web only)
-- **workflow-builder** — React Flow visual UIs (web only)
+- **customize-table** — DataTable columns (web only)
+- **build-workflow** — React Flow visual UIs (web only)
 - **ai-integration** — AI SDK + oRPC features
 - **rls-setup** — Row-level security policies (only when requested)
 - **manage-secrets** — Environment variables and secrets
@@ -158,7 +158,7 @@ Always: list connections → search actions → get details → execute. The sea
 **Web** (`apps/web/`):
 
 - Uses React Router v7 + TanStack DB
-- Web-only skills available: query-collections, handle-views, table-customization, create-crud-app-template
+- Web-only skills available: query-collections, handle-views, customize-table, create-crud-app-template
 - Do NOT use web-only skills if `apps/web/` does not exist
 
 **Mobile** (`apps/native/`):
