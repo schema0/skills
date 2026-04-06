@@ -121,16 +121,12 @@ You can also add a platform later with `bun schema0 add web` or `bun schema0 add
 3. Make technical decisions autonomously — don't ask the user to choose between frameworks, file structures, or implementation details
 4. Update todos as you progress
 
-### Available Skills
+### Building Web Features
 
-Use these skills to build features efficiently:
+For web CRUD features, follow the `create-crud-app-template` skill's execution order — it orchestrates the correct sequence of sub-skills (create-db-schema → api-router → query-collections → handle-views → customize-table) and includes testing as a required step.
 
-- **create-db-schema** — Database table schemas (Drizzle ORM)
-- **api-router** — ORPC API routers with CRUD operations
-- **create-crud-app-template** — Full CRUD feature (web only, orchestrates sub-skills)
-- **query-collections** — TanStack DB collections + forms (web only)
-- **handle-views** — Route components (web only)
-- **customize-table** — DataTable columns (web only)
+### Other Available Skills
+
 - **build-workflow** — React Flow visual UIs (web only)
 - **ai-integration** — AI SDK + oRPC features
 - **rls-setup** — Row-level security policies (only when requested)
@@ -174,15 +170,30 @@ Always: list connections → search actions → get details → execute. The sea
 
 ---
 
-## Phase 7: Test & Deploy
+## Phase 7: Test
 
-**Goal**: Ship it
+**Goal**: Verify each feature works before deploying
+
+**Actions** (web platform):
+
+1. Read `packages/test/CLAUDE.md` before writing any test code
+2. Run `cd packages/test && bun drizzle-kit generate` to generate test DB migrations
+3. For each entity, create `packages/test/src/{entity}.test.tsx` with create, update, and delete tests
+4. Typecheck your files first, then run `cd packages/test && bun test src/{entity}.test.tsx`
+5. Fix any failures — do not proceed to deployment until all tests pass
+
+> If `apps/web/` does not exist (mobile-only project), skip steps 1–5 and verify the app builds without errors instead.
+
+---
+
+## Phase 8: Deploy
+
+**Prerequisite**: All tests from Phase 7 pass.
 
 **Actions**:
 
-1. If a build fails, debug and fix it without involving the user
-2. Commit your changes before deploying
-3. Run diagnostics and deploy:
+1. Commit your changes before deploying
+2. Run diagnostics and deploy:
    ```bash
    bun schema0 doctor        # Check and fix configuration issues before deploying
    bun schema0 deploy        # Auto-detects and deploys all installed platforms
@@ -192,12 +203,13 @@ Always: list connections → search actions → get details → execute. The sea
    bun schema0 deploy --platform web      # Deploy web only
    bun schema0 deploy --platform mobile   # Deploy mobile only
    ```
+3. If a build fails, debug and fix it without involving the user
 4. Share the deployed URL with the user
 5. **Mobile projects:** After deploying, run `bun schema0 dev` to start the Expo dev server with a public tunnel URL. Display the QR code output to the user so they can scan it with Expo Go. The dev server must remain running — the app launched by scanning the QR code connects to it. If the server stops, the app will lose connection.
 
 ---
 
-## Phase 8: Summary
+## Phase 9: Summary
 
 **Goal**: Hand off to the user
 
