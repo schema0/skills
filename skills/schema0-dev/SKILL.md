@@ -75,12 +75,12 @@ See [references/mobile.md](references/mobile.md) for mobile-specific patterns.
 ### Other Capabilities
 
 - **AI Integration** — AI SDK + oRPC features (read the `ai-integration` skill)
-- **Visual Workflows** — React Flow UIs (web only, read the `build-workflow` skill)
-- **Row-Level Security** — RLS policies (read the `rls-setup` skill, only when requested)
+- **Visual Workflows** — React Flow UIs (requires `apps/web/`)
+- **Row-Level Security** — RLS policies. See [references/rls-setup.md](references/rls-setup.md) (only when requested)
 - **Secrets Management** — `schema0 secrets list/set/delete`
 - **Integrations** — Third-party services. See [references/integrations.md](references/integrations.md)
 
-> Skills marked **(web only)** require `apps/web/` to exist. Do not use them in mobile-only projects.
+> Web features (CRUD frontend, collections, table columns, views, workflows) require `apps/web/` to exist. Check with `schema0 sandbox exec "ls apps/"` before using them.
 
 ---
 
