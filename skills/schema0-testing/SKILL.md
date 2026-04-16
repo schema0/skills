@@ -1,3 +1,8 @@
+---
+name: schema0-testing
+description: Testing guide for web and mobile platforms — bun:test, Jest, PGlite, 3-layer validation, and test templates
+---
+
 # Testing
 
 Testing is mandatory — every feature MUST have tests. A feature is NOT complete without a passing test file. NEVER gut tests to make them pass — fix the source code instead.

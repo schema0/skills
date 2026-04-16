@@ -1,3 +1,8 @@
+---
+name: schema0-rls
+description: Row-level security setup — RLS policies, authenticated database connections, and user-scoped data access
+---
+
 # Row-Level Security (RLS) Setup
 
 Database tables with Row-Level Security policies for user-scoped data access.

@@ -1,3 +1,8 @@
+---
+name: schema0-ai
+description: AI SDK integration with ORPC — chat streaming, prompt-response, tool calling, and provider configuration
+---
+
 # AI Integration
 
 AI SDK integration with ORPC for chat, prompt-response, and tool-calling features.

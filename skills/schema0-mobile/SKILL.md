@@ -1,3 +1,8 @@
+---
+name: schema0-mobile
+description: Mobile platform patterns — React Native / Expo, worker architecture, ORPC client, and navigation
+---
+
 # Mobile Platform
 
 React Native / Expo app at `apps/native/`. Skip this if `apps/native/` does not exist.

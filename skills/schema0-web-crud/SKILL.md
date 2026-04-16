@@ -1,6 +1,11 @@
+---
+name: schema0-web-crud
+description: Web frontend CRUD features — query collections, table columns, dialogs, forms, views, sidebar, and orchestration
+---
+
 # Web Feature Development
 
-Building CRUD features for the web platform (`apps/web/`). Skip this entirely if `apps/web/` does not exist.
+> **Web only.** Requires `apps/web/` to exist. Skip this entirely if `apps/web/` does not exist.
 
 ## Web Stack
 
@@ -30,327 +35,7 @@ For every new entity, create files in this exact sequence:
 
 ---
 
-## 1. Database Schema
-
-**File:** `packages/db/src/schema/{entities}.ts`
-
-Every entity file defines exactly 7 schemas: table, insertSchema, selectSchema, updateSchema, formSchema, editFormSchema, routerOutputSchema.
-
-### Full Template
-
-```typescript
-// packages/db/src/schema/entities.ts
-import {
-  pgTable,
-  text,
-  boolean,
-  timestamp,
-  integer,
-  decimal,
-} from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-
-// ──────────────────────────────────────────────
-// 1. TABLE DEFINITION
-// ──────────────────────────────────────────────
-export const entities = pgTable("entities", {
-  id: text("id").primaryKey(), // ALWAYS text -- enables optimistic updates
-  name: text("name").notNull(),
-  description: text("description"), // Nullable (string | null in DB)
-  email: text("email").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }),
-  active: boolean("active").default(true),
-  userId: text("user_id"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// ──────────────────────────────────────────────
-// 2. INSERT SCHEMA
-// ──────────────────────────────────────────────
-// ALWAYS use callback overrides (schema) => ... for nullable columns
-// NEVER use direct z.string().optional()
-export const insertEntitiesSchema = createInsertSchema(entities, {
-  name: (schema) => schema.min(1).max(200),
-  email: (schema) => schema.email(),
-  description: (schema) => schema.optional(), // nullable -> optional for RHF
-  price: (schema) => schema.optional(),
-  active: (schema) => schema.optional(),
-  userId: (schema) => schema.optional(),
-});
-
-// ──────────────────────────────────────────────
-// 3. SELECT SCHEMA
-// ──────────────────────────────────────────────
-export const selectEntitiesSchema = createSelectSchema(entities, {
-  description: (schema) => schema.optional(),
-  price: (schema) => schema.optional(),
-  active: (schema) => schema.optional(),
-  userId: (schema) => schema.optional(),
-});
-
-// ──────────────────────────────────────────────
-// 4. UPDATE SCHEMA
-// ──────────────────────────────────────────────
-export const updateEntitiesSchema = selectEntitiesSchema
-  .partial()
-  .required({ id: true });
-
-// ──────────────────────────────────────────────
-// 5. FORM SCHEMA (create mode -- omits system fields)
-// ──────────────────────────────────────────────
-export const entitiesFormSchema = insertEntitiesSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-// ──────────────────────────────────────────────
-// 6. EDIT FORM SCHEMA (edit mode -- partial, NO id)
-// ──────────────────────────────────────────────
-// MUST NOT include id -- Dialog adds id after submission
-// Optionally omit immutable fields (e.g. email)
-export const entitiesEditFormSchema = entitiesFormSchema
-  .omit({ email: true })
-  .partial();
-
-// ──────────────────────────────────────────────
-// 7. ROUTER OUTPUT SCHEMA (for .output() validation)
-// ──────────────────────────────────────────────
-// timestamp() returns Date objects, NOT strings
-// Every column WITHOUT .notNull() needs .nullable().optional()
-export const entitiesRouterOutputSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().nullable().optional(),
-  email: z.string(),
-  price: z.string().nullable().optional(), // decimal returns string
-  active: z.boolean().nullable().optional(),
-  userId: z.string().nullable().optional(),
-  createdAt: z.date(), // Date, NOT z.string()
-  updatedAt: z.date(), // Date, NOT z.string()
-});
-```
-
-### Schema Key Rules
-
-1. **Callback overrides for nullable columns:** Every column without `.notNull()` must get `colName: (schema) => schema.optional()` in both insertSchema and selectSchema. This converts `string | null` to `string | undefined` for React Hook Form compatibility.
-2. **NEVER use `.transform()`:** Creates `ZodEffects` which breaks `.omit()` and `.partial()` chaining.
-3. **NEVER use `z.unknown()` or `z.any()`:** Add callback overrides instead.
-4. **NEVER use `serial()` or `bigint` for primary keys:** Only `text("id").primaryKey()` supports client-generated IDs for optimistic updates.
-5. **Router output schema MUST mirror table nullability:** Every column WITHOUT `.notNull()` needs `.nullable().optional()`. Omitting `.nullable()` causes silent "Output validation failed".
-6. **Form schemas belong in the entity file**, not in `index.ts`.
-
-### Schema Naming Conventions
-
-All names use PLURAL form:
-
-| Schema                         | Derivation                                      | Purpose                       |
-| ------------------------------ | ----------------------------------------------- | ----------------------------- |
-| `{entities}FormSchema`         | `insertSchema.omit({id, createdAt, updatedAt})` | Create form validation        |
-| `{entities}EditFormSchema`     | `formSchema.partial()` (NO `id`)                | Edit form validation          |
-| `insert{Entities}Schema`       | `createInsertSchema(table, overrides)`          | Bulk insert validation        |
-| `select{Entities}Schema`       | `createSelectSchema(table, overrides)`          | Query/collection validation   |
-| `update{Entities}Schema`       | `selectSchema.partial().required({id})`         | Bulk update validation        |
-| `{entities}RouterOutputSchema` | `z.object({...})` with DB return types          | Router `.output()` validation |
-
-### Column Types Reference
-
-```typescript
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real } from "drizzle-orm/pg-core";
-
-id: text("id").primaryKey(),
-name: text("name").notNull(),
-email: varchar("email", { length: 255 }).unique(),
-age: integer("age"),
-price: decimal("price", { precision: 10, scale: 2 }),
-rating: real("rating"),
-active: boolean("active").default(true),
-metadata: jsonb("metadata").$type<{ key: string }>(),
-createdAt: timestamp("created_at").defaultNow().notNull(),
-updatedAt: timestamp("updated_at").defaultNow().notNull(),
-```
-
-### Export in index.ts
-
-```typescript
-// packages/db/src/schema/index.ts
-export * from "./entities";
-// Add new entities here as you create them
-```
-
-### Migration Workflow
-
-After creating or modifying a schema file, generate and apply migrations:
-
-```bash
-# Generate migration files (packages/db)
-schema0 sandbox exec "bun drizzle-kit generate"
-
-# Apply migrations to database
-schema0 sandbox exec "bun drizzle-kit migrate"
-
-# Generate test migrations (packages/test) -- required before running tests
-schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
-```
-
-### Transform Utilities
-
-Form-to-Database pipeline utilities for collection onInsert:
-
-```typescript
-import {
-  nullToUndefined,
-  prepareFormForQueryCollection,
-} from "@template/db/schema";
-
-// Convert null to undefined
-const queryData = nullToUndefined(formData);
-
-// Complete pipeline: validate, transform, add system fields
-const queryData = prepareFormForQueryCollection(formData, entityFormSchema, {
-  id: generateId(),
-  userId: currentUser.id,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-});
-```
-
----
-
-## 2. API Router
-
-**File:** `packages/api/src/routers/{entities}.ts`
-
-Every router provides 5 bulk CRUD operations: `selectAll`, `selectById`, `insertMany`, `updateMany`, `deleteMany`.
-
-### Full Template
-
-```typescript
-// packages/api/src/routers/entities.ts
-import { z } from "zod/v4";
-import { eq, inArray } from "drizzle-orm";
-import { createDb } from "@template/db";
-import { protectedProcedure } from "../index";
-import {
-  entities,
-  insertEntitiesSchema,
-  updateEntitiesSchema,
-  entitiesRouterOutputSchema,
-} from "@template/db/schema";
-
-export const entitiesRouter = {
-  // ──────────────────────────────────────────────
-  // SELECT ALL
-  // ──────────────────────────────────────────────
-  selectAll: protectedProcedure
-    .input(z.object({}).optional())
-    .output(z.array(entitiesRouterOutputSchema))
-    .handler(async ({ context }) => {
-      const db = createDb();
-      return await db
-        .select()
-        .from(entities)
-        .where(eq(entities.userId, context.session.user.id));
-    }),
-
-  // ──────────────────────────────────────────────
-  // SELECT BY ID
-  // ──────────────────────────────────────────────
-  selectById: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .output(entitiesRouterOutputSchema.nullable())
-    .handler(async ({ input }) => {
-      const db = createDb();
-      const result = await db
-        .select()
-        .from(entities)
-        .where(eq(entities.id, input.id))
-        .limit(1);
-      return result[0] ?? null;
-    }),
-
-  // ──────────────────────────────────────────────
-  // INSERT MANY
-  // ──────────────────────────────────────────────
-  insertMany: protectedProcedure
-    .input(z.array(insertEntitiesSchema))
-    .output(z.array(entitiesRouterOutputSchema))
-    .handler(async ({ input }) => {
-      const db = createDb();
-      return await db.insert(entities).values(input).returning();
-    }),
-
-  // ──────────────────────────────────────────────
-  // UPDATE MANY
-  // ──────────────────────────────────────────────
-  updateMany: protectedProcedure
-    .input(z.array(updateEntitiesSchema))
-    .output(z.array(entitiesRouterOutputSchema))
-    .handler(async ({ input }) => {
-      const db = createDb();
-      const results = [];
-      for (const item of input) {
-        const { id, ...data } = item;
-        const updated = await db
-          .update(entities)
-          .set({ ...data, updatedAt: new Date() })
-          .where(eq(entities.id, id))
-          .returning();
-        results.push(...updated);
-      }
-      return results;
-    }),
-
-  // ──────────────────────────────────────────────
-  // DELETE MANY
-  // ──────────────────────────────────────────────
-  deleteMany: protectedProcedure
-    .input(z.array(z.object({ id: z.string() })))
-    .output(z.array(entitiesRouterOutputSchema))
-    .handler(async ({ input }) => {
-      const db = createDb();
-      const ids = input.map((i) => i.id);
-      return await db
-        .delete(entities)
-        .where(inArray(entities.id, ids))
-        .returning();
-    }),
-};
-```
-
-### Register in index.ts
-
-```typescript
-// packages/api/src/routers/index.ts
-import { publicProcedure } from "../index";
-import { usersRouter } from "./users";
-import { entitiesRouter } from "./entities";
-
-export const appRouter = {
-  healthCheck: publicProcedure.handler(() => "OK"),
-  users: usersRouter,
-  entities: entitiesRouter, // <-- add new router here
-};
-
-export type AppRouter = typeof appRouter;
-```
-
-### Router Critical Rules
-
-1. **Use `.handler()` for ALL procedures** -- NEVER `.query()` or `.mutation()` (those are tRPC patterns).
-2. **Use `createDb()` inside each handler** -- never module-level singleton. Cloudflare Workers isolate requests.
-3. **NEVER use `fetchCustomResources`** for new routers -- only for built-in `files.ts` and `users.ts`.
-4. **Use `import { z } from "zod/v4"`** -- NEVER `import z from "zod"`.
-5. **Import schemas from `@template/db/schema`** -- NEVER define `z.object()` schemas inline.
-6. **Use `{entity}RouterOutputSchema` for `.output()`** -- must match DB return types.
-7. **Bulk operations only** -- `insertMany`, `updateMany`, `deleteMany` for TanStack DB optimistic updates.
-8. **Data MUST be stored in database** -- every mutation must hit DB and return persisted result.
-
----
-
-## 3. Query Collections
+## 1. Query Collections
 
 **File:** `apps/web/src/query-collections/custom/{entities}.ts`
 
@@ -635,7 +320,7 @@ export { entitiesColumns, entitiesBaseColumns } from "./EntitiesColumn";
 
 ---
 
-## 4. Table Columns
+## 2. Table Columns
 
 **File:** `apps/web/src/components/ui/data-table/custom/{entities}/{Entities}Column.tsx`
 
@@ -832,7 +517,7 @@ Common cell renderers for different data types:
 
 ---
 
-## 5. Views (Route Components)
+## 3. Views (Route Components)
 
 ### List Route
 
@@ -1034,7 +719,7 @@ export default function EntityDetailPage({ loaderData }: Route.ComponentProps) {
 
 ---
 
-## 6. Sidebar Entry
+## 4. Sidebar Entry
 
 After creating all files, add the entity to the sidebar:
 
@@ -1050,7 +735,7 @@ After creating all files, add the entity to the sidebar:
 
 ---
 
-## 7. CRUD Orchestration
+## 5. CRUD Orchestration
 
 ### Execution Order Diagram
 
@@ -1145,14 +830,3 @@ A feature is complete when ALL of the following are true:
 7. Tests pass: create, update, delete via UI
 8. Sidebar entry added
 9. Deployed successfully
-
----
-
-## Global Rules Checklist
-
-- Use PLURAL entity names everywhere (`entities`, not `entity`)
-- Use `import { z } from "zod/v4"` -- NEVER `import z from "zod"`
-- No `any` types, no typecheck suppression (`@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`, `eslint-disable`)
-- Never hand-write migration files -- always `drizzle-kit generate`
-- Use `createDb()` per request -- never singleton
-- Testing is mandatory -- minimum 3 CRUD tests per entity
