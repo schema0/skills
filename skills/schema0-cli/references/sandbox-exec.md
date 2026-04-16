@@ -13,18 +13,25 @@ schema0 sandbox exec "<command>" [--cwd <dir>] [--timeout <ms>]
 
 Maximum timeout is 300000 (5 minutes). Exit code is forwarded -- non-zero causes CLI to exit with failure.
 
-## Common Patterns
+## File Operations
+
+For reading, writing, listing, and searching files, use the dedicated commands instead of `sandbox exec`:
 
 ```bash
-# Reading files
-schema0 sandbox exec "cat packages/db/src/schema/users.ts"
+schema0 sandbox read <path>                                  # read a file
+schema0 sandbox write <path> --content "content"             # write inline
+schema0 sandbox write <path>                                 # write from stdin
+schema0 sandbox ls [path] [-L <depth>]                       # directory tree (.gitignore aware)
+schema0 sandbox grep <pattern> [--path <dir>] [--include <glob>]  # search files
+```
 
-# Writing files
-schema0 sandbox exec "cat > packages/db/src/schema/entity.ts << 'FILEEOF'
-import { pgTable, text, timestamp } from \"drizzle-orm/pg-core\";
-// ...
-FILEEOF"
+These are faster and more reliable than `sandbox exec "cat ..."`.
 
+## Shell Commands
+
+Use `sandbox exec` for commands that aren't file operations:
+
+```bash
 # Typechecking
 schema0 sandbox exec "bunx oxlint --type-check --type-aware --quiet <your-files>"
 
@@ -35,12 +42,15 @@ schema0 sandbox exec "bun test web/users.test.tsx" --cwd packages/test
 schema0 sandbox exec "bun add some-package"
 
 # Generating migrations
-schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
+schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/db
+
+# Git operations
+schema0 sandbox exec "git add -A && git commit -m 'message'"
 ```
 
 ## Notes
 
 - Always quote the command string to prevent local shell expansion
-- Use `--cwd` instead of `cd` inside the command when possible
+- Use `--cwd` instead of `cd` inside the command when possible — relative paths resolve against the project root
 - For long-running commands (builds, tests), increase `--timeout`
 - The sandbox filesystem persists between commands

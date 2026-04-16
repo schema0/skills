@@ -17,7 +17,8 @@ Initial request: $ARGUMENTS
 - **Handle everything**: The user's only job is to describe what they want. You handle all technical work end-to-end.
 - **No technical burden on user**: Never ask the user to run commands, fix code, or make technical decisions.
 - **Autonomous decisions**: Make all technical decisions yourself. If ambiguous, assume, mention it, proceed.
-- **Remote sandbox**: All file operations and shell commands go through `schema0 sandbox exec`. See the `schema0-cli` skill.
+- **Remote sandbox**: The codebase lives on a remote sandbox. Use `schema0 sandbox read/write/ls/grep` for file operations and `schema0 sandbox exec` for shell commands. See the `schema0-cli` skill.
+- **Read before creating**: Before creating a new file, always read an existing file of the same type from the sandbox to see the actual patterns used in this project. Use the real file as your template, not the skill reference.
 
 ## Phases
 
