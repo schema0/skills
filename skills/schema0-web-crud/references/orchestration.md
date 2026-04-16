@@ -9,8 +9,8 @@
 2. Router    packages/api/src/routers/{entities}.ts
      |       + register in packages/api/src/routers/index.ts
      v
-3. Migrate   schema0 sandbox exec "bun drizzle-kit generate"
-     |       schema0 sandbox exec "bun drizzle-kit migrate"
+3. Migrate   schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/db
+     |       schema0 sandbox exec "bun drizzle-kit migrate" --cwd packages/db
      v
 4. Collection  apps/web/src/query-collections/custom/{entities}.ts
      |
@@ -64,8 +64,8 @@ Plus modifications to:
 
 ```bash
 # 1. Generate database migrations
-schema0 sandbox exec "bun drizzle-kit generate"
-schema0 sandbox exec "bun drizzle-kit migrate"
+schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/db
+schema0 sandbox exec "bun drizzle-kit migrate" --cwd packages/db
 
 # 2. Generate test migrations
 schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test

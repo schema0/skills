@@ -125,11 +125,11 @@ export * from "./entities";
 After creating or modifying a schema file, generate and apply migrations:
 
 ```bash
-# Generate migration files (packages/db)
-schema0 sandbox exec "bun drizzle-kit generate"
+# Generate migration files
+schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/db
 
 # Apply migrations to database
-schema0 sandbox exec "bun drizzle-kit migrate"
+schema0 sandbox exec "bun drizzle-kit migrate" --cwd packages/db
 
 # Generate test migrations (packages/test) -- required before running tests
 schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
