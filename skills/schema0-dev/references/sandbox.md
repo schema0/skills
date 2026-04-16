@@ -68,11 +68,13 @@ schema0 sandbox deploy [options]
 ### What It Does
 
 **Web** (`--platform web`):
+
 1. Generates and runs database migrations (unless `--skip-db`)
 2. Builds the web application on the sandbox
 3. Deploys the build output
 
 **Native** (`--platform native`):
+
 1. Generates and runs database migrations (unless `--skip-db`)
 2. Exports the Expo app with `EXPO_PUBLIC_*` env vars injected
 3. Runs `expo-adapter-workers` to prepare for deployment
