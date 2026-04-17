@@ -27,7 +27,7 @@ export const entities = pgTable("entities", {
   email: text("email").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }),
   active: boolean("active").default(true),
-  userId: text("user_id"),
+  userId: text("user_id").notNull(), // server-stamped (see "Server-Stamped Fields" below)
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -53,7 +53,6 @@ export const selectEntitiesSchema = createSelectSchema(entities, {
   description: (schema) => schema.optional(),
   price: (schema) => schema.optional(),
   active: (schema) => schema.optional(),
-  userId: (schema) => schema.optional(),
 });
 
 // ──────────────────────────────────────────────
@@ -93,11 +92,45 @@ export const entitiesRouterOutputSchema = z.object({
   email: z.string(),
   price: z.string().nullable().optional(), // decimal returns string
   active: z.boolean().nullable().optional(),
-  userId: z.string().nullable().optional(),
+  userId: z.string(), // .notNull() column
   createdAt: z.date(), // Date, NOT z.string()
   updatedAt: z.date(), // Date, NOT z.string()
 });
 ```
+
+## Server-Stamped Fields
+
+Some fields are stamped by the server from session context, never sent by the client — most commonly `userId`, `organizationId`, `createdBy`.
+
+Pattern: keep them `.notNull()` in the table (data integrity), but mark them `.optional()` in the insert schema (client omits them).
+
+```typescript
+// TABLE: column is .notNull() for data integrity
+export const tasks = pgTable("tasks", {
+  // ...
+  userId: text("user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// INSERT SCHEMA: mark as optional so clients can omit them
+export const insertTasksSchema = createInsertSchema(tasks, {
+  userId: (schema) => schema.optional(), // server stamps from session
+});
+
+// ROUTER: stamp the value server-side after validation
+insertMany: protectedProcedure
+  .input(z.object({ tasks: z.array(insertTasksSchema) }))
+  .handler(async ({ input, context }) => {
+    const userId = context.session.user.id;
+    return await db.insert(tasks).values(
+      input.tasks.map((t) => ({ ...t, userId })),
+    );
+  });
+```
+
+**Why:** `createInsertSchema` makes `.notNull()` columns required in Zod. If the client omits `userId`, ORPC throws `BAD_REQUEST: Input validation failed` before the handler runs. Marking the field `.optional()` in the insert schema lets the client omit it; the handler then fills it in from the session.
+
+Apply this pattern to any column the server populates (not the client): `userId`, `organizationId`, `createdBy`, `tenantId`, etc.
 
 ## Schema Naming Conventions
 

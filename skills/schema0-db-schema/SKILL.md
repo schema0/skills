@@ -31,6 +31,7 @@ Every entity file defines exactly 7 schemas:
 ## Key Rules
 
 - Callback overrides for nullable columns: `colName: (schema) => schema.optional()` in both insert and select schemas
+- **Server-stamped fields** (e.g., `userId`, `organizationId`, `createdBy`): keep `.notNull()` on the table but mark `.optional()` in the insert schema. The server fills them in from session context. See `references/schema-template.md` > "Server-Stamped Fields".
 - NEVER use `.transform()` -- breaks `.omit()` and `.partial()` chaining
 - NEVER use `serial()` or `bigint` for primary keys -- only `text("id").primaryKey()`
 - Router output: every column WITHOUT `.notNull()` needs `.nullable().optional()`
