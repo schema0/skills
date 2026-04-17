@@ -74,7 +74,7 @@ schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
 schema0 sandbox exec "bunx oxlint --type-check --type-aware --quiet packages/db/src/schema/entities.ts packages/api/src/routers/entities.ts"
 
 # 4. Run tests
-schema0 sandbox exec "bun test web/entities.test.tsx" --cwd packages/test
+schema0 sandbox exec "NODE_ENV=test bun test web/entities.test.tsx" --cwd packages/test
 
 # 5. Deploy
 schema0 sandbox deploy

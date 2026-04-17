@@ -17,6 +17,7 @@ Testing is mandatory -- every feature MUST have tests. A feature is NOT complete
 | Native | `packages/test/native/{entity}.test.tsx` | Jest + @testing-library/react-native |
 
 Path aliases are already configured in the test tsconfigs:
+
 - `packages/test/web/tsconfig.json` maps `@/*` → `apps/web/src/*`
 - `packages/test/native/tsconfig.json` maps `@/*` → `apps/native/*`
 
@@ -41,14 +42,15 @@ This generates migration files into `packages/test/drizzle/`. **NEVER hand-write
 
 ```bash
 # Web tests
-schema0 sandbox exec "bun test web/{entity}.test.tsx" --cwd packages/test
+schema0 sandbox exec "NODE_ENV=test bun test web/{entity}.test.tsx" --cwd packages/test
 
 # Mobile tests
-schema0 sandbox exec "NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit native/{entity}.test.tsx" --cwd packages/test --timeout 120000
+schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit native/{entity}.test.tsx" --cwd packages/test --timeout 120000
 ```
 
 ## Key Rules
 
+- **ALWAYS prefix test commands with `NODE_ENV=test`**
 - Router MUST use `createDb()` -- NOT `fetchCustomResources` (causes ECONNREFUSED)
 - Collection `queryFn` must use direct server calls -- NOT HTTP requests
 - Collection `id`/`queryKey` must match the test's `invalidateQueries` call

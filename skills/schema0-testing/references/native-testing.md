@@ -12,7 +12,7 @@ schema0 sandbox exec "node native/build-orpc.js" --cwd packages/test
 schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
 
 # Step 3: Run tests
-schema0 sandbox exec "NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit native/{entity}.test.tsx" --cwd packages/test --timeout 120000
+schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit native/{entity}.test.tsx" --cwd packages/test --timeout 120000
 ```
 
 ## Pre-Test Checklist

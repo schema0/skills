@@ -9,7 +9,7 @@ Skip if `apps/web/` does not exist.
 schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
 
 # Step 2: Run tests
-schema0 sandbox exec "bun test web/{entity}.test.tsx" --cwd packages/test
+schema0 sandbox exec "NODE_ENV=test bun test web/{entity}.test.tsx" --cwd packages/test
 ```
 
 ## Pre-Test Checklist

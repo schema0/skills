@@ -26,7 +26,7 @@ Use `sandbox exec` for commands that aren't file operations:
 schema0 sandbox exec "bunx oxlint --type-check --type-aware --quiet <your-files>"
 
 # Running tests
-schema0 sandbox exec "bun test web/users.test.tsx" --cwd packages/test
+schema0 sandbox exec "NODE_ENV=test bun test web/users.test.tsx" --cwd packages/test
 
 # Installing packages
 schema0 sandbox exec "bun add some-package"
