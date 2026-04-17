@@ -15,17 +15,7 @@ Maximum timeout is 300000 (5 minutes). Exit code is forwarded -- non-zero causes
 
 ## File Operations
 
-For reading, writing, listing, and searching files, use the dedicated commands instead of `sandbox exec`:
-
-```bash
-schema0 sandbox read <path>                                  # read a file
-schema0 sandbox write <path> --content "content"             # write inline
-schema0 sandbox write <path>                                 # write from stdin
-schema0 sandbox ls [path] [-L <depth>]                       # directory tree (.gitignore aware)
-schema0 sandbox grep <pattern> [--path <dir>] [--include <glob>]  # search files
-```
-
-These are faster and more reliable than `sandbox exec "cat ..."`.
+For file reads, writes, listing, and searching, use the dedicated commands in `references/sandbox-files.md` — do NOT use `sandbox exec "cat ..."`.
 
 ## Shell Commands
 

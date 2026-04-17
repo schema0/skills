@@ -22,25 +22,33 @@ Initial request: $ARGUMENTS
 
 ## Phases
 
-1. **Understand** -- Read project instruction files (CLAUDE.md / AGENTS.md / GEMINI.md), check platforms (`apps/web/`, `apps/native/`)
-2. **Clarify** -- Summarize understanding, ask one round of questions max if unclear, then proceed
-3. **Build** -- Implement the application following project conventions. Web CRUD: see `schema0-web-crud`. Schema: see `schema0-db-schema`. Router: see `schema0-api-router`. Mobile: see `schema0-mobile`. AI: see `schema0-ai`. RLS: see `schema0-rls` (only when requested).
-4. **Test** -- Every feature must have tests. See `schema0-testing`. All tests must pass before deploy.
-5. **Deploy** -- `schema0 sandbox deploy`. See `schema0-cli` for deploy details and version management.
+Invoke skills **on demand** — only when you reach the phase/task that needs them. Do NOT preload all skills upfront; that pollutes context.
+
+1. **Understand** -- Invoke Skill("schema0-cli") to learn sandbox commands. Then `schema0 sandbox ls -L 2` to see structure. Read project instruction files (CLAUDE.md / AGENTS.md / GEMINI.md) via `schema0 sandbox read`. Check platforms (`apps/web/`, `apps/native/`).
+2. **Clarify** -- Summarize understanding, ask one round of questions max if unclear, then proceed.
+3. **Build** -- At each step, invoke ONLY the skill you need right now:
+   - Before defining a database schema → Skill("schema0-db-schema")
+   - Before creating an API router → Skill("schema0-api-router")
+   - Before building web frontend (collection/table/views) → Skill("schema0-web-crud") (web only)
+   - Before native work → Skill("schema0-mobile") (native only)
+   - Before AI features → Skill("schema0-ai")
+   - Before row-level security (only when requested) → Skill("schema0-rls")
+4. **Test** -- Invoke Skill("schema0-testing"). Every feature must have tests. All tests must pass before deploy.
+5. **Deploy** -- Commit changes, then `schema0 sandbox deploy`. For version management / preview / production, invoke Skill("schema0-cli") references as needed.
 6. **Summary** -- Share the live URL, summarize what was built, key decisions, suggested next steps.
 
 ## Skill Directory
 
-| Skill              | Use for                                           |
+| Skill              | Invoke when                                       |
 | ------------------ | ------------------------------------------------- |
-| `schema0-web-crud` | Web frontend CRUD (collections, tables, views)    |
-| `schema0-db-schema`| Database schema definitions (Drizzle)             |
-| `schema0-api-router`| ORPC API routers                                 |
-| `schema0-testing`  | Web and mobile test guides                        |
-| `schema0-mobile`   | React Native / Expo patterns                      |
-| `schema0-ai`       | AI SDK integration                                |
-| `schema0-rls`      | Row-level security policies                       |
-| `schema0-cli`      | CLI commands, sandbox exec, deploy, versions      |
+| `schema0-cli`      | First — for sandbox commands and deploy usage     |
+| `schema0-db-schema`| About to create/modify a database schema          |
+| `schema0-api-router`| About to create an ORPC router                   |
+| `schema0-web-crud` | About to build web CRUD (collection, table, view) |
+| `schema0-mobile`   | About to work on `apps/native/`                   |
+| `schema0-ai`       | About to build an AI-powered feature              |
+| `schema0-rls`      | User explicitly asks for row-level security       |
+| `schema0-testing`  | About to write tests                              |
 
 ## Global Rules
 

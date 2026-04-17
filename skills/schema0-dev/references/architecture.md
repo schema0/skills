@@ -56,7 +56,7 @@ Access: `import { env } from "@template/auth"`
 | 8   | List Route    | `apps/web/src/routes/_auth.{entity}.tsx`                                   |
 | 9   | Detail Route  | `apps/web/src/routes/_auth.{entity}_.$id.tsx`                              |
 | 10  | Test (web)    | `packages/test/web/{entity}.test.tsx`                                      |
-| 11  | Test (mobile) | `packages/test/mobile/{entity}.test.tsx`                                   |
+| 11  | Test (native) | `packages/test/native/{entity}.test.tsx`                                   |
 
 Without web: only files 1-2.
 

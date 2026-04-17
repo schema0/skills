@@ -50,6 +50,7 @@ Relative paths resolve against the project root. Use these commands for all file
 
 ## References
 
+- `references/sandbox-files.md` -- sandbox read/write/ls/grep (single-path, not the local Read tool)
 - `references/sandbox-exec.md` -- sandbox exec syntax, options, common patterns
 - `references/sandbox-deploy.md` -- sandbox deploy options, what it does per platform, notes
 - `references/version-management.md` -- version list/preview/deploy/remove/confirm-migration workflow
