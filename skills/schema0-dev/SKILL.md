@@ -24,6 +24,10 @@ Initial request: $ARGUMENTS
 
 Invoke skills **on demand** — only when you reach the phase/task that needs them. Do NOT preload all skills upfront; that pollutes context.
 
+**Before you start building, copy all 6 phases below into your TODO list verbatim.** Do not merge phases, rename them, or drop any — every phase is a separate TODO item. A TODO list that paraphrases ("Deploy and verify") instead of mirroring the phases will silently drop steps like Test.
+
+**Your TODO list MUST include every one of these 6 phases, in this order.** Do not collapse or skip any phase. Phase 4 (Test) is not optional — tests must exist and pass before Phase 5 (Deploy). If you deploy without tests, you have broken the contract.
+
 1. **Understand** -- Invoke Skill("schema0-cli") to learn sandbox commands. Then `schema0 sandbox ls -L 2` to see structure. Read project instruction files (CLAUDE.md / AGENTS.md / GEMINI.md) via `schema0 sandbox read`. Check platforms (`apps/web/`, `apps/native/`).
 2. **Clarify** -- Summarize understanding, ask one round of questions max if unclear, then proceed.
 3. **Build** -- At each step, invoke ONLY the skill you need right now:
@@ -33,8 +37,8 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
    - Before native work → Skill("schema0-mobile") (native only)
    - Before AI features → Skill("schema0-ai")
    - Before row-level security (only when requested) → Skill("schema0-rls")
-4. **Test** -- Invoke Skill("schema0-testing"). Every feature must have tests. All tests must pass before deploy.
-5. **Deploy** -- Commit changes, then `schema0 sandbox deploy`. For version management / preview / production, invoke Skill("schema0-cli") references as needed.
+4. **Test** -- **MANDATORY. Do NOT skip. Do NOT proceed to deploy without this phase.** Invoke Skill("schema0-testing"). Write minimum 3 CRUD tests per entity (create, update, delete via UI). All tests must pass before deploy. Add this as an explicit TODO item in your task list at the start of the build — a TODO list that ends with "Deploy" without a preceding "Write tests" item is incomplete.
+5. **Deploy** -- Commit changes, then `schema0 sandbox deploy`. **Before running deploy, verify all tests from Phase 4 pass.** For version management / preview / production, invoke Skill("schema0-cli") references as needed.
 6. **Summary** -- Share the live URL, summarize what was built, key decisions, suggested next steps.
 
 ## Skill Directory
@@ -48,7 +52,7 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
 | `schema0-mobile`   | About to work on `apps/native/`                   |
 | `schema0-ai`       | About to build an AI-powered feature              |
 | `schema0-rls`      | User explicitly asks for row-level security       |
-| `schema0-testing`  | About to write tests                              |
+| `schema0-testing`  | **ALWAYS before deploy** — not on-demand          |
 
 ## Global Rules
 
