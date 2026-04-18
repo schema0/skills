@@ -9,7 +9,7 @@ packages/auth/    -- Server-side auth (uses @schema0/auth-web)
 packages/test/    -- Integrated tests (PGlite + UI)
 packages/config/  -- Shared config
 apps/web/         -- React Router v7 + TanStack DB         -> web platform (if exists)
-apps/native/      -- React Native / Expo                   -> mobile platform (if exists)
+apps/mobile/      -- React Native / Expo                   -> mobile platform (if exists)
 ```
 
 ## Platform Detection
@@ -17,7 +17,7 @@ apps/native/      -- React Native / Expo                   -> mobile platform (i
 Before executing platform-specific tasks, check which platforms are installed:
 
 - **Web**: `apps/web/` exists
-- **Mobile**: `apps/native/` exists
+- **Mobile**: `apps/mobile/` exists
 - **Template-only**: neither exists (only `packages/`)
 
 ## Global Rules
@@ -56,7 +56,7 @@ Access: `import { env } from "@template/auth"`
 | 8   | List Route    | `apps/web/src/routes/_auth.{entity}.tsx`                                   |
 | 9   | Detail Route  | `apps/web/src/routes/_auth.{entity}_.$id.tsx`                              |
 | 10  | Test (web)    | `packages/test/web/{entity}.test.tsx`                                      |
-| 11  | Test (native) | `packages/test/native/{entity}.test.tsx`                                   |
+| 11  | Test (mobile) | `packages/test/mobile/{entity}.test.tsx`                                   |
 
 Without web: only files 1-2.
 

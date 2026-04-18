@@ -2,7 +2,7 @@
 
 ## Worker Architecture
 
-`apps/native/worker.ts`: Single Cloudflare Worker handles both static assets and API. API routes mounted at `/rpc` via Hono + `RPCHandler` (same routers from `packages/api/`). Static assets served by `expo-adapter-workers`. Do NOT delete `worker.ts` or `build-worker.ts`.
+`apps/mobile/worker.ts`: Single Cloudflare Worker handles both static assets and API. API routes mounted at `/rpc` via Hono + `RPCHandler` (same routers from `packages/api/`). Static assets served by `expo-adapter-workers`. Do NOT delete `worker.ts` or `build-worker.ts`.
 
 ## ORPC Client Setup
 
@@ -45,7 +45,7 @@ const createEntity = useMutation({
 
 Mobile uses Expo Router for navigation (file-based routing like Next.js):
 
-- File-based routing under `apps/native/app/`
+- File-based routing under `apps/mobile/app/`
 - Layout routes with `_layout.tsx`
 - Auth-protected routes use middleware/guards
 - Deep linking supported via Expo Router config
@@ -54,7 +54,7 @@ Mobile uses Expo Router for navigation (file-based routing like Next.js):
 
 - Auth via `@schema0/auth-mobile` + WorkOS (cookie-based sealed sessions)
 - Environment variables use `EXPO_PUBLIC_*` prefix
-- API calls go to the deployed backend -- deploy with `schema0 sandbox deploy --platform native` first
+- API calls go to the deployed backend -- deploy with `schema0 sandbox deploy --platform mobile` first
 - NO TanStack DB on mobile -- use React Query directly
 - NO `useLiveQuery` -- that is web-only (`@tanstack/react-db`)
 

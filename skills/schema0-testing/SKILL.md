@@ -1,6 +1,6 @@
 ---
 name: schema0-testing
-description: Testing guide for web and native platforms — bun:test, Jest, PGlite, 3-layer validation, and test templates
+description: Testing guide for web and mobile platforms — bun:test, Jest, PGlite, 3-layer validation, and test templates
 ---
 
 # Testing
@@ -14,12 +14,12 @@ Testing is mandatory -- every feature MUST have tests. A feature is NOT complete
 | Type   | Location                                 | Runner                               |
 | ------ | ---------------------------------------- | ------------------------------------ |
 | Web    | `packages/test/web/{entity}.test.tsx`    | bun:test + HappyDOM                  |
-| Native | `packages/test/native/{entity}.test.tsx` | Jest + @testing-library/react-native |
+| Mobile | `packages/test/mobile/{entity}.test.tsx` | Jest + @testing-library/react-native |
 
 Path aliases are already configured in the test tsconfigs:
 
 - `packages/test/web/tsconfig.json` maps `@/*` → `apps/web/src/*`
-- `packages/test/native/tsconfig.json` maps `@/*` → `apps/native/*`
+- `packages/test/mobile/tsconfig.json` maps `@/*` → `apps/mobile/*`
 
 All tests run against a **real in-process PGlite database** -- no mocks for the DB layer.
 
@@ -45,7 +45,7 @@ This generates migration files into `packages/test/drizzle/`. **NEVER hand-write
 schema0 sandbox exec "NODE_ENV=test bun test web/{entity}.test.tsx" --cwd packages/test
 
 # Mobile tests
-schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit native/{entity}.test.tsx" --cwd packages/test --timeout 120000
+schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit mobile/{entity}.test.tsx" --cwd packages/test --timeout 120000
 ```
 
 ## Key Rules
@@ -65,4 +65,4 @@ schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx
 ## References
 
 - `references/web-testing.md` -- Full web test guide (pre-test checklist, infrastructure, mock ordering, 3-layer validation, template, common failures)
-- `references/native-testing.md` -- Full native test guide (Jest setup, differences from web, Alert.alert pattern, template)
+- `references/mobile-testing.md` -- Full mobile test guide (Jest setup, differences from web, Alert.alert pattern, template)

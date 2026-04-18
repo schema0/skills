@@ -28,13 +28,13 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
 
 **Your TODO list MUST include every one of these 6 phases, in this order.** Do not collapse or skip any phase. Phase 4 (Test) is not optional — tests must exist and pass before Phase 5 (Deploy). If you deploy without tests, you have broken the contract.
 
-1. **Understand** -- Invoke Skill("schema0-cli") to learn sandbox commands. Then `schema0 sandbox ls -L 2` to see structure. Read project instruction files (CLAUDE.md / AGENTS.md / GEMINI.md) via `schema0 sandbox read`. Check platforms (`apps/web/`, `apps/native/`).
+1. **Understand** -- Invoke Skill("schema0-cli") to learn sandbox commands. Then `schema0 sandbox ls -L 2` to see structure. Read project instruction files (CLAUDE.md / AGENTS.md / GEMINI.md) via `schema0 sandbox read`. Check platforms (`apps/web/`, `apps/mobile/`).
 2. **Clarify** -- Summarize understanding, ask one round of questions max if unclear, then proceed.
 3. **Build** -- At each step, invoke ONLY the skill you need right now:
    - Before defining a database schema → Skill("schema0-db-schema")
    - Before creating an API router → Skill("schema0-api-router")
    - Before building web frontend (collection/table/views) → Skill("schema0-web-crud") (web only)
-   - Before native work → Skill("schema0-mobile") (native only)
+   - Before mobile work → Skill("schema0-mobile") (mobile only)
    - Before AI features → Skill("schema0-ai")
    - Before row-level security (only when requested) → Skill("schema0-rls")
 4. **Test** -- **MANDATORY. Do NOT skip. Do NOT proceed to deploy without this phase.** Invoke Skill("schema0-testing"). Write minimum 3 CRUD tests per entity (create, update, delete via UI). All tests must pass before deploy. Add this as an explicit TODO item in your task list at the start of the build — a TODO list that ends with "Deploy" without a preceding "Write tests" item is incomplete.
@@ -49,7 +49,7 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
 | `schema0-db-schema`| About to create/modify a database schema          |
 | `schema0-api-router`| About to create an ORPC router                   |
 | `schema0-web-crud` | About to build web CRUD (collection, table, view) |
-| `schema0-mobile`   | About to work on `apps/native/`                   |
+| `schema0-mobile`   | About to work on `apps/mobile/`                   |
 | `schema0-ai`       | About to build an AI-powered feature              |
 | `schema0-rls`      | User explicitly asks for row-level security       |
 | `schema0-testing`  | **ALWAYS before deploy** — not on-demand          |

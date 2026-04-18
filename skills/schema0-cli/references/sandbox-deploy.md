@@ -9,7 +9,7 @@ schema0 sandbox deploy [options]
 | Option                 | Description                                 |
 | ---------------------- | ------------------------------------------- |
 | `--skip-db`            | Skip database migrations                    |
-| `--platform`           | Deploy specific platform: `web` or `native` |
+| `--platform`           | Deploy specific platform: `web` or `mobile` |
 | `--include-source-map` | Include source maps in the deployment       |
 
 ## What It Does
@@ -20,7 +20,7 @@ schema0 sandbox deploy [options]
 2. Builds the web application on the sandbox
 3. Deploys the build output
 
-**Native** (`--platform native`):
+**Mobile** (`--platform mobile`):
 
 1. Generates and runs database migrations (unless `--skip-db`)
 2. Exports the Expo app with `EXPO_PUBLIC_*` env vars injected

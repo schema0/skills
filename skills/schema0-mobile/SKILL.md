@@ -5,11 +5,11 @@ description: Mobile platform patterns — React Native / Expo, worker architectu
 
 # Mobile Platform
 
-React Native / Expo app at `apps/native/`. Skip this if `apps/native/` does not exist.
+React Native / Expo app at `apps/mobile/`. Skip this if `apps/mobile/` does not exist.
 
 ## Overview
 
-Mobile apps use a single Cloudflare Worker (`apps/native/worker.ts`) that handles both static assets and API. API routes are mounted at `/rpc` via Hono + `RPCHandler` using the same routers from `packages/api/`.
+Mobile apps use a single Cloudflare Worker (`apps/mobile/worker.ts`) that handles both static assets and API. API routes are mounted at `/rpc` via Hono + `RPCHandler` using the same routers from `packages/api/`.
 
 ## Key Differences from Web
 
@@ -33,7 +33,7 @@ Validated in `_layout.tsx`:
 ## Deploying
 
 ```bash
-schema0 sandbox deploy --platform native
+schema0 sandbox deploy --platform mobile
 ```
 
 ## References

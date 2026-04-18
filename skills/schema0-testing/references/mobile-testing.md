@@ -1,18 +1,18 @@
-# Native Testing
+# Mobile Testing
 
-Skip if `apps/native/` does not exist.
+Skip if `apps/mobile/` does not exist.
 
 ## Quick Start
 
 ```bash
 # Step 1: Build compiled @orpc packages (required once, and after @orpc upgrades)
-schema0 sandbox exec "node native/build-orpc.js" --cwd packages/test
+schema0 sandbox exec "node mobile/build-orpc.js" --cwd packages/test
 
 # Step 2: Generate migrations (if schema changed)
 schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
 
 # Step 3: Run tests
-schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit native/{entity}.test.tsx" --cwd packages/test --timeout 120000
+schema0 sandbox exec "NODE_ENV=test NODE_OPTIONS='--experimental-vm-modules' npx jest --config jest.config.js --forceExit mobile/{entity}.test.tsx" --cwd packages/test --timeout 120000
 ```
 
 ## Pre-Test Checklist
@@ -31,12 +31,12 @@ schema0 sandbox exec "bun drizzle-kit generate" --cwd packages/test
 
 | File                      | Purpose                                                                                                            |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `jest.config.js`          | Jest config: merges `jest-expo` preset, maps `@/` to `apps/native/`, redirects `@orpc/*` to compiled CJS           |
+| `jest.config.js`          | Jest config: merges `jest-expo` preset, maps `@/` to `apps/mobile/`, redirects `@orpc/*` to compiled CJS           |
 | `babel.config.js`         | `babel-preset-expo` with `unstable_transformImportMeta` + `@babel/plugin-transform-dynamic-import`                 |
-| `native/setup-globals.js` | Polyfills `window.location` for PGlite's Emscripten, patches `ArrayBuffer[Symbol.hasInstance]` for cross-VM compat |
-| `native/setup.ts`         | Jest mocks: `@template/auth`, `@template/db`, `expo-router`, `@schema0/auth-mobile`, expo modules, RN safe area    |
-| `native/build-orpc.js`    | Pre-compiles `@orpc/*` from ESM (.mjs) to CJS (.js) via esbuild                                                    |
-| `native/compiled-orpc/`   | Pre-compiled CJS bundles of `@orpc/server`, `@orpc/client`, `@orpc/tanstack-query`                                 |
+| `mobile/setup-globals.js` | Polyfills `window.location` for PGlite's Emscripten, patches `ArrayBuffer[Symbol.hasInstance]` for cross-VM compat |
+| `mobile/setup.ts`         | Jest mocks: `@template/auth`, `@template/db`, `expo-router`, `@schema0/auth-mobile`, expo modules, RN safe area    |
+| `mobile/build-orpc.js`    | Pre-compiles `@orpc/*` from ESM (.mjs) to CJS (.js) via esbuild                                                    |
+| `mobile/compiled-orpc/`   | Pre-compiled CJS bundles of `@orpc/server`, `@orpc/client`, `@orpc/tanstack-query`                                 |
 
 ## Key Differences from Web Tests
 
@@ -72,11 +72,11 @@ jest.mock("@/src/utils/query-client", () => {
 
 ## App-Specific Mocks
 
-`native/setup.ts` only mocks modules that every mobile test needs. Your screen will likely import app-specific modules not covered by setup.ts (e.g., custom contexts, additional expo packages, `@gorhom/bottom-sheet`, `react-native-gesture-handler`). You MUST add `jest.mock()` for these in your test file, not in setup.ts.
+`mobile/setup.ts` only mocks modules that every mobile test needs. Your screen will likely import app-specific modules not covered by setup.ts (e.g., custom contexts, additional expo packages, `@gorhom/bottom-sheet`, `react-native-gesture-handler`). You MUST add `jest.mock()` for these in your test file, not in setup.ts.
 
 ## `Alert.alert` in Delete Flows
 
-If the screen uses `Alert.alert` for delete confirmation, `@testing-library/react-native` cannot interact with it (it's a native dialog). Override `Alert.alert` at runtime in the delete test to auto-confirm:
+If the screen uses `Alert.alert` for delete confirmation, `@testing-library/react-native` cannot interact with it (it's a mobile dialog). Override `Alert.alert` at runtime in the delete test to auto-confirm:
 
 ```typescript
 import { Alert } from "react-native";
@@ -162,7 +162,7 @@ jest.mock("@/src/utils/query-client", () => {
 });
 
 // App-specific mocks: add jest.mock() for any modules your screen imports
-// that aren't covered by native/setup.ts
+// that aren't covered by mobile/setup.ts
 
 // Import the screen AFTER all mocks are set up
 import {Entity}Screen from "@/app/(tabs)/{entity}";
@@ -180,7 +180,7 @@ beforeEach(async () => {
   mockQueryClient.clear();
 });
 
-describe("{Entity}Screen - full CRUD via native UI", () => {
+describe("{Entity}Screen - full CRUD via mobile UI", () => {
   test("create via UI triggers insertMany endpoint", async () => {
     const inputValidationSpy = jest.spyOn(
       (
