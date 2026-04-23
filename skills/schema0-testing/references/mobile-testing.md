@@ -110,6 +110,8 @@ Every mobile test MUST:
 
 ## Full Mobile Test Template
 
+The mock factory (`jest.mock("@/src/utils/query-client", ...)`) and the `let mockQueryClient` declaration are **fixed infrastructure — copy them verbatim**. The only entity-specific parts are in the test body: `db.delete({entity})`, `render(<{Entity}Screen ...>)`, `fireEvent.*`, and `screen.get*` / `screen.queryBy*` calls.
+
 ```typescript
 /// <reference types="@types/jest" />
 
@@ -134,7 +136,7 @@ jest.mock("@/src/utils/query-client", () => {
   const { QueryClient: QC } = require("@tanstack/react-query");
   const { createRouterClient } = require("@orpc/server");
   const { createTanstackQueryUtils } = require("@orpc/tanstack-query");
-  const { appRouter } = require("@template/api/routers/index");
+  const { appRouter } = require("@template/api/routers/index"); // always appRouter — never the entity router
 
   const qc = new QC({
     defaultOptions: {
@@ -149,7 +151,7 @@ jest.mock("@/src/utils/query-client", () => {
   };
 
   const mockServerClient = createRouterClient(appRouter, {
-    context: mockContext,
+    context: mockContext, // required — auth middleware reads context.session
   });
 
   mockQueryClient = qc;
