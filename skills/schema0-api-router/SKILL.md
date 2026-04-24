@@ -1,6 +1,6 @@
 ---
 name: schema0-api-router
-description: Required before writing a new API router. Contains rules that override patterns you will see in existing routers — including when NOT to copy `users.ts` / `files.ts` (which use `fetchCustomResources` as a legacy exception). Covers CRUD procedures, error handling, context, and registration.
+description: ORPC API router generation — CRUD procedures, error handling, context, and router registration
 ---
 
 # API Router
