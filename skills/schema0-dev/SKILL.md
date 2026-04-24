@@ -32,7 +32,7 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
 2. **Clarify** -- Summarize understanding, ask one round of questions max if unclear, then proceed.
 3. **Build** -- At each step, invoke ONLY the skill you need right now:
    - Before defining a database schema → Skill("schema0-db-schema")
-   - Before creating an API router → Skill("schema0-api-router")
+   - Before creating an API router → Skill("schema0-api-router") — always invoke, never skip
    - Before building web frontend (collection/table/views) → Skill("schema0-web-crud") (web only)
    - Before mobile work → Skill("schema0-mobile") (mobile only)
    - Before AI features → Skill("schema0-ai")
