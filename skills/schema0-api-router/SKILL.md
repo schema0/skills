@@ -5,6 +5,12 @@ description: ORPC API router generation — CRUD procedures, error handling, con
 
 # API Router
 
+**STOP before writing any router.**
+
+1. New routers MUST use `createDb()` against a Drizzle table.
+2. `users.ts` and `files.ts` are NOT templates. They call platform endpoints purpose-built for the `users` and `files` platform features — there is no Drizzle table behind them. Your application's entities are application data and go through your own tables; do not copy `users.ts` / `files.ts` for any new entity.
+3. If your entity has no Drizzle table yet, invoke `schema0-db-schema` first to define one.
+
 ## File Location
 
 ```
