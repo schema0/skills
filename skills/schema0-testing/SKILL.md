@@ -5,9 +5,17 @@ description: Testing guide for web and mobile platforms — bun:test, Jest, PGli
 
 # Testing
 
-Testing is mandatory -- every feature MUST have tests. A feature is NOT complete without a passing test file. NEVER gut tests to make them pass -- fix the source code instead.
+**STOP — testing is non-skippable.**
 
-**Minimum requirement: 3 CRUD tests per entity (create, update, delete via UI).**
+If you believe tests should be skipped, deferred, or substituted with anything else (browser smoke test, manual verification, "I'll add them after deploy", etc.), you MUST stop and ask the user before making any change. Send exactly this message and wait for a reply:
+
+"I'm proposing to skip mandatory tests because [reason]. Approve?"
+
+You may not decide this unilaterally. The decision to skip is the user's, not yours.
+
+A test todo is complete only when you paste the test runner's output showing pass/fail counts. Other states ("deferred", "covered by smoke test", "called out in summary") are not completion.
+
+**Minimum requirement: 3 CRUD tests per entity (create, update, delete via UI).** NEVER gut tests to make them pass — fix the source code instead.
 
 ## Shared Infrastructure
 

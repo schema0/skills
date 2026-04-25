@@ -27,7 +27,6 @@ Before executing platform-specific tasks, check which platforms are installed:
 3. **No `any` types, no typecheck suppression** -- NEVER use `any`, `// @ts-ignore`, `// @ts-expect-error`, `// @ts-nocheck`, or `// eslint-disable`. Fix the type error instead.
 4. **Never hand-write migration files** -- `packages/db/drizzle/` is managed by `drizzle-kit generate` and `drizzle-kit migrate`
 5. **Use createDb() per request** -- never use singleton db instances. Cloudflare Workers isolate requests -- a singleton causes "Cannot perform I/O on behalf of a different request" errors.
-6. **Testing is mandatory** -- every feature MUST have tests. A feature is NOT complete without a passing test file.
 
 ## Catalog Dependencies
 
