@@ -97,8 +97,17 @@ expect(el).toBeDefined();
 Bun's module mocking is hoisted -- `mock.module()` calls must come before the imports they intercept. The required order is:
 
 ```typescript
-// 1. Mock the database -- BEFORE importing the router
-void mock.module("@template/db", () => ({ createDb: () => db }));
+// 1. Mock the database -- BEFORE importing the router.
+// If the entity uses RLS (router calls createRLSTransaction), include the
+// passthrough below so the JWT fetch is skipped and queries hit PGlite directly.
+void mock.module("@template/db", () => ({
+  createDb: () => db,
+  createRLSTransaction: async (_request: Request) => {
+    return async <T>(callback: (tx: typeof db) => Promise<T>): Promise<T> => {
+      return db.transaction(callback);
+    };
+  },
+}));
 
 // 2. Mock auth -- BEFORE importing the router
 void mock.module("@template/auth", () => ({ auth: {}, env: {} }));

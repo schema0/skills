@@ -11,6 +11,18 @@ description: ORPC API router generation — CRUD procedures, error handling, con
 2. `users.ts` and `files.ts` are NOT templates. They call platform endpoints purpose-built for the `users` and `files` platform features — there is no Drizzle table behind them. Your application's entities are application data and go through your own tables; do not copy `users.ts` / `files.ts` for any new entity.
 3. If your entity has no Drizzle table yet, invoke `schema0-db-schema` first to define one.
 
+## Does this entity need RLS?
+
+Decide before writing the router. The entity needs Row-Level Security if any of the following apply, based on the user's request:
+
+- Each user sees only their own rows (e.g. personal notes, tasks, journal entries).
+- Data is scoped per organization or tenant.
+- The entity has ownership or permission boundaries (creator vs reader vs editor).
+
+If yes → invoke `Skill("schema0-rls")` and follow that skill's template. RLS routers wrap each handler in `createRLSTransaction(context.request)` instead of calling `createDb()` directly. The procedure shape (`selectAll` / `selectById` / `insertMany` / `updateMany` / `deleteMany`) is the same as below — only the database access pattern changes.
+
+If no → continue with the `createDb()` template that follows.
+
 ## File Location
 
 ```

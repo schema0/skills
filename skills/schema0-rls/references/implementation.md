@@ -8,11 +8,11 @@ ALL RLS database operations MUST use `createRLSTransaction`:
 import { createRLSTransaction } from "@template/db";
 import { protectedProcedure } from "../index";
 
-export const usersRouter = {
-  getAll: protectedProcedure.handler(async ({ context }) => {
+export const postsRouter = {
+  selectAll: protectedProcedure.handler(async ({ context }) => {
     const RLSTransaction = await createRLSTransaction(context.request);
     return await RLSTransaction(async (tx) => {
-      return await tx.select().from(users);
+      return await tx.select().from(posts);
     });
   }),
 };
@@ -30,116 +30,91 @@ export const usersRouter = {
 
 ## Complete CRUD Router Example
 
+Procedure shape matches `schema0-api-router` (`selectAll` / `selectById` / `insertMany` / `updateMany` / `deleteMany`); only the database access pattern differs.
+
 ```typescript
 // packages/api/src/routers/posts.ts
+import { z } from "zod/v4";
+import { eq, inArray } from "drizzle-orm";
 import { protectedProcedure } from "../index";
 import { createRLSTransaction } from "@template/db";
-import { posts } from "@template/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod/v4";
+import {
+  posts,
+  insertPostsSchema,
+  updatePostsSchema,
+  postsRouterOutputSchema,
+} from "@template/db/schema";
 
 export const postsRouter = {
-  getAll: protectedProcedure.handler(async ({ context }) => {
-    const RLSTransaction = await createRLSTransaction(context.request);
-    return await RLSTransaction(async (tx) => {
-      return await tx.select().from(posts);
-    });
-  }),
+  selectAll: protectedProcedure
+    .input(z.object({}).optional())
+    .output(z.array(postsRouterOutputSchema))
+    .handler(async ({ context }) => {
+      const RLSTransaction = await createRLSTransaction(context.request);
+      return await RLSTransaction(async (tx) => {
+        return await tx.select().from(posts);
+      });
+    }),
 
-  getById: protectedProcedure
+  selectById: protectedProcedure
     .input(z.object({ id: z.string() }))
+    .output(postsRouterOutputSchema.nullable())
     .handler(async ({ input, context }) => {
       const RLSTransaction = await createRLSTransaction(context.request);
       return await RLSTransaction(async (tx) => {
         const result = await tx
           .select()
           .from(posts)
-          .where(eq(posts.id, input.id));
-        return result[0] || null;
+          .where(eq(posts.id, input.id))
+          .limit(1);
+        return result[0] ?? null;
       });
     }),
 
-  create: protectedProcedure
-    .input(
-      z.object({
-        title: z.string().min(1),
-        content: z.string(),
-      }),
-    )
+  insertMany: protectedProcedure
+    .input(z.array(insertPostsSchema))
+    .output(z.array(postsRouterOutputSchema))
     .handler(async ({ input, context }) => {
       const RLSTransaction = await createRLSTransaction(context.request);
       const userId = context.session.user.id;
       return await RLSTransaction(async (tx) => {
         return await tx
           .insert(posts)
-          .values({ ...input, userId })
+          .values(input.map((row) => ({ ...row, userId })))
           .returning();
       });
     }),
 
-  update: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        title: z.string().optional(),
-        content: z.string().optional(),
-      }),
-    )
+  updateMany: protectedProcedure
+    .input(z.array(updatePostsSchema))
+    .output(z.array(postsRouterOutputSchema))
     .handler(async ({ input, context }) => {
       const RLSTransaction = await createRLSTransaction(context.request);
-      const { id, ...data } = input;
       return await RLSTransaction(async (tx) => {
-        return await tx
-          .update(posts)
-          .set(data)
-          .where(eq(posts.id, id))
-          .returning();
+        const results = [];
+        for (const item of input) {
+          const { id, ...data } = item;
+          const updated = await tx
+            .update(posts)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(posts.id, id))
+            .returning();
+          results.push(...updated);
+        }
+        return results;
       });
     }),
 
-  delete: protectedProcedure
-    .input(z.object({ id: z.string() }))
+  deleteMany: protectedProcedure
+    .input(z.array(z.object({ id: z.string() })))
+    .output(z.array(postsRouterOutputSchema))
     .handler(async ({ input, context }) => {
       const RLSTransaction = await createRLSTransaction(context.request);
-      return await RLSTransaction(async (tx) => {
-        return await tx.delete(posts).where(eq(posts.id, input.id)).returning();
-      });
-    }),
-};
-```
-
-## Router with Filtering
-
-```typescript
-export const tasksRouter = {
-  getByStatus: protectedProcedure
-    .input(z.object({ completed: z.boolean() }))
-    .handler(async ({ input, context }) => {
-      const RLSTransaction = await createRLSTransaction(context.request);
+      const ids = input.map((i) => i.id);
       return await RLSTransaction(async (tx) => {
         return await tx
-          .select()
-          .from(tasks)
-          .where(eq(tasks.completed, input.completed))
-          .orderBy(desc(tasks.createdAt));
-      });
-    }),
-
-  toggle: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .handler(async ({ input, context }) => {
-      const RLSTransaction = await createRLSTransaction(context.request);
-      return await RLSTransaction(async (tx) => {
-        const [task] = await tx
-          .select()
-          .from(tasks)
-          .where(eq(tasks.id, input.id))
-          .limit(1);
-        if (!task) throw new Error("Task not found");
-        return await tx
-          .update(tasks)
-          .set({ completed: !task.completed })
-          .where(eq(tasks.id, input.id))
+          .delete(posts)
+          .where(inArray(posts.id, ids))
           .returning();
       });
     }),
@@ -210,19 +185,18 @@ schema0 sandbox exec "bun run db:generate"
 schema0 sandbox exec "bun run db:migrate"
 ```
 
-## Post-Generation Steps
+## Wiring Steps
 
 1. Export schema in `packages/db/src/schema/index.ts`:
    ```typescript
-   export * from "./tasks";
+   export * from "./posts";
    ```
 2. Register router in `packages/api/src/routers/index.ts`:
    ```typescript
-   import { tasksRouter } from "./tasks";
-   export const appRouter = { tasks: tasksRouter, ... };
+   import { postsRouter } from "./posts";
+   export const appRouter = { posts: postsRouter, ... };
    ```
-3. Complete TODOs in generated router (schema fields, table operations)
-4. Generate and apply migrations:
+3. Generate and apply migrations:
    ```bash
    schema0 sandbox exec "bun run db:generate && bun run db:migrate"
    ```

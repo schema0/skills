@@ -14,13 +14,12 @@ Database tables with Row-Level Security policies for user-scoped data access.
 - Implement user-scoped data access
 - Secure database operations with user-based access control
 
-## Quick Start: Generate RLS Router
+## Workflow
 
-```bash
-schema0 sandbox exec "bun run scaffold-scripts/generate.ts rls-service <name>"
-```
-
-Generated output: `packages/api/src/routers/[name].ts` -- ORPC router with `protectedProcedure`, `createRLSTransaction`, CRUD with RLS.
+1. Define the entity in `packages/db/src/schema/{entities}.ts` with `crudPolicy`. See `references/patterns.md` for the full schema example (table + 7 zod schemas).
+2. Generate and apply migrations with `bun run db:generate && bun run db:migrate`.
+3. Create the router in `packages/api/src/routers/{entities}.ts` using `createRLSTransaction`. See `references/implementation.md` for the full router template.
+4. Register the router in `packages/api/src/routers/index.ts`.
 
 ## 3 Policy Patterns
 
