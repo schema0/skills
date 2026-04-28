@@ -145,9 +145,15 @@ jest.mock("@/src/utils/query-client", () => {
     },
   });
 
+  const TEST_USER_ID = "user_mobile_123";
   const mockContext = {
-    session: { user: { id: "user_mobile_123", email: "mobile@test.com" } },
-    request: new Request("https://example.com"),
+    session: { user: { id: TEST_USER_ID, email: "mobile@test.com" } },
+    // X-Test-User-Id is what the mocked createRLSTransaction reads to set the
+    // `sub` claim. Must match session.user.id so the router stamping and the
+    // RLS policy agree.
+    request: new Request("https://example.com", {
+      headers: { "X-Test-User-Id": TEST_USER_ID },
+    }),
   };
 
   const mockServerClient = createRouterClient(appRouter, {

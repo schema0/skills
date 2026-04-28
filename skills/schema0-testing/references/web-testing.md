@@ -99,15 +99,34 @@ Bun's module mocking is hoisted -- `mock.module()` calls must come before the im
 ```typescript
 // 1. Mock the database -- BEFORE importing the router.
 // If the entity uses RLS (router calls createRLSTransaction), include the
-// passthrough below so the JWT fetch is skipped and queries hit PGlite directly.
-void mock.module("@template/db", () => ({
-  createDb: () => db,
-  createRLSTransaction: async (_request: Request) => {
-    return async <T>(callback: (tx: typeof db) => Promise<T>): Promise<T> => {
-      return db.transaction(callback);
-    };
-  },
-}));
+// passthrough below. It mirrors Neon's pathway in PGlite — SET LOCAL ROLE
+// authenticated_user + set_config('request.jwt.claims', ...) — so policies
+// actually fire. The user id comes from the request's X-Test-User-Id header.
+void mock.module("@template/db", () => {
+  const { sql } = require("drizzle-orm");
+  return {
+    createDb: () => db,
+    createRLSTransaction: async (request: Request) => {
+      const userId = request.headers.get("X-Test-User-Id") ?? "";
+      const claims = JSON.stringify({ sub: userId });
+      return async <T>(callback: (tx: typeof db) => Promise<T>): Promise<T> => {
+        return db.transaction(async (tx) => {
+          await tx.execute(sql.raw(`SET LOCAL ROLE authenticated_user`));
+          await tx.execute(
+            sql`SELECT set_config('request.jwt.claims', ${claims}, true)`,
+          );
+          return callback(tx);
+        });
+      };
+    },
+  };
+});
+
+// When constructing mockContext for createRouterClient, give the request the
+// X-Test-User-Id header that matches session.user.id, e.g.:
+//   request: new Request("https://example.com", {
+//     headers: { "X-Test-User-Id": "user_web_123" },
+//   })
 
 // 2. Mock auth -- BEFORE importing the router
 void mock.module("@template/auth", () => ({ auth: {}, env: {} }));
