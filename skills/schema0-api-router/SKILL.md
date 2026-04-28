@@ -13,15 +13,26 @@ description: ORPC API router generation — CRUD procedures, error handling, con
 
 ## Does this entity need RLS?
 
-Decide before writing the router. The entity needs Row-Level Security if any of the following apply, based on the user's request:
+You must decide BEFORE writing the router, even when the user's request does not mention it. Most user-facing apps need RLS for almost every entity — assume RLS is needed unless one of the "no RLS" cases below clearly applies.
 
-- Each user sees only their own rows (e.g. personal notes, tasks, journal entries).
-- Data is scoped per organization or tenant.
-- The entity has ownership or permission boundaries (creator vs reader vs editor).
+**Infer RLS for these (this is the default for app data):**
 
-If yes → invoke `Skill("schema0-rls")` and follow that skill's template. RLS routers wrap each handler in `createRLSTransaction(context.request)` instead of calling `createDb()` directly. The procedure shape (`selectAll` / `selectById` / `insertMany` / `updateMany` / `deleteMany`) is the same as below — only the database access pattern changes.
+- Anything called a "tracker", "manager", "list", or "log" of personal items — tasks, expenses, notes, habits, books, contacts, workouts, journal entries, etc.
+- Any entity a user creates, owns, or curates for themselves.
+- Any per-organization or per-tenant data in a multi-tenant app.
+- Any entity with ownership, authorship, or permission semantics.
 
-If no → continue with the `createDb()` template that follows.
+**Do NOT use RLS for these (these are the exceptions):**
+
+- Truly public reference data shared across all users (e.g. a directory of restaurants, a list of countries, lookup tables).
+- Admin-only configuration tables not accessed by regular users.
+- Internal/system tables with no user-facing access.
+
+**When the request is ambiguous, default to RLS.** A "task tracker" without further detail means each user tracks their own tasks. A "recipe app" without further detail means each user has their own recipes. The cost of adding RLS to single-user data is small; the cost of leaking another user's data is large.
+
+If RLS → invoke `Skill("schema0-rls")` and follow that skill's template. RLS routers wrap each handler in `createRLSTransaction(context.request)` instead of calling `createDb()` directly. The procedure shape (`selectAll` / `selectById` / `insertMany` / `updateMany` / `deleteMany`) is the same as below — only the database access pattern changes.
+
+If not → continue with the `createDb()` template that follows.
 
 ## File Location
 
