@@ -363,9 +363,13 @@ describe("{Entity}Page - full CRUD via UI", () => {
     fireEvent.click(screen.getByRole("button", { name: /add {entity}/i }));
     await waitFor(() => screen.getByLabelText(/name/i));
 
-    // Fill required fields and submit
+    // Fill required fields and submit.
+    // Use fireEvent.submit on the form, NOT fireEvent.click on the submit button —
+    // HappyDOM does not bubble click→submit reliably (notably after fireEvent.change
+    // on a type="number" input with a decimal value).
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: "Test Item" } });
-    fireEvent.click(screen.getByRole("button", { name: /^create$/i }));
+    const createBtn = screen.getByRole("button", { name: /^create$/i });
+    fireEvent.submit(createBtn.closest("form")!);
 
     // Assert: collection.insert was called
     await waitFor(() => expect(insertSpy).toHaveBeenCalled(), { timeout: 3000 });
@@ -406,7 +410,9 @@ describe("{Entity}Page - full CRUD via UI", () => {
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
     await waitFor(() => screen.getByLabelText(/name/i));
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: "Updated Item" } });
-    fireEvent.click(screen.getByRole("button", { name: /^save$/i }));
+    // Submit the form, not click the button — see note in the create test above.
+    const saveBtn = screen.getByRole("button", { name: /^save$/i });
+    fireEvent.submit(saveBtn.closest("form")!);
 
     // Assert: collection.update was called
     await waitFor(() => expect(updateSpy).toHaveBeenCalled(), { timeout: 3000 });
