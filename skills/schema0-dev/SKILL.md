@@ -31,7 +31,7 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
    - Before building web frontend (collection/table/views) → Skill("schema0-web-crud") (web only)
    - Before mobile work → Skill("schema0-mobile") (mobile only)
    - Before AI features → Skill("schema0-ai")
-   - Before row-level security (only when requested) → Skill("schema0-rls")
+   - Before defining a per-user, per-tenant, or ownership-bound entity → Skill("schema0-rls")
 4. **Test** -- Invoke Skill("schema0-testing").
 5. **Deploy** -- Commit changes, then `schema0 sandbox deploy`. For version management / preview / production, invoke Skill("schema0-cli") references as needed.
 6. **Summary** -- Share the live URL, summarize what was built, key decisions, suggested next steps.
@@ -46,7 +46,7 @@ Invoke skills **on demand** — only when you reach the phase/task that needs th
 | `schema0-web-crud` | About to build web CRUD (collection, table, view) |
 | `schema0-mobile`   | About to work on `apps/mobile/`                   |
 | `schema0-ai`       | About to build an AI-powered feature              |
-| `schema0-rls`      | User explicitly asks for row-level security       |
+| `schema0-rls`      | Entity is per-user, per-tenant, or ownership-bound |
 | `schema0-testing`  | Before deploy                                     |
 
 ## Global Rules

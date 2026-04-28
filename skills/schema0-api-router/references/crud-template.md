@@ -4,6 +4,8 @@
 
 Every router provides 5 bulk CRUD operations: `selectAll`, `selectById`, `insertMany`, `updateMany`, `deleteMany`.
 
+This template is for entities that are NOT scoped to a single user (shared, global, or admin-only data). **If your entity is per-user/per-tenant, do not use this template — invoke `schema0-rls` instead.**
+
 ```typescript
 // packages/api/src/routers/entities.ts
 import { z } from "zod/v4";
@@ -24,12 +26,9 @@ export const entitiesRouter = {
   selectAll: protectedProcedure
     .input(z.object({}).optional())
     .output(z.array(entitiesRouterOutputSchema))
-    .handler(async ({ context }) => {
+    .handler(async () => {
       const db = createDb();
-      return await db
-        .select()
-        .from(entities)
-        .where(eq(entities.userId, context.session.user.id));
+      return await db.select().from(entities);
     }),
 
   // ──────────────────────────────────────────────
